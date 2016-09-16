@@ -69,7 +69,7 @@ class OracleOfBacon
       elsif ! @doc.xpath('/link').empty?
         parse_graph_response
       else
-        parse_error_response
+        parse_unknown_response
       end
     end
 
