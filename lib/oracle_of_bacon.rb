@@ -53,7 +53,6 @@ class OracleOfBacon
     # your code here: set the @uri attribute to properly-escaped URI
     # constructed from the @from, @to, @api_key arguments
     @uri = "http://oracleofbacon.org/cgi-bin/xml?p=" + CGI.escape("#{@api_key}") + "&a=" + CGI.escape("#{@to}") + "&b=" + CGI.escape("#{@from}")
-    puts @uri
   end
 
   class Response
@@ -83,7 +82,6 @@ class OracleOfBacon
      # based on type attribute and body of the error element
      @data = @doc.xpath('/error').text
      @type = @doc.xpath('/error').attr('type').text.to_sym
-     p @type
     end
 
     def parse_spellcheck_response
