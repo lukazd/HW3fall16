@@ -12,7 +12,7 @@ class OracleOfBacon
 
   attr_accessor :from, :to
   attr_reader :api_key, :response, :uri
-  
+
   include ActiveModel::Validations
   validates_presence_of :from
   validates_presence_of :to
@@ -20,20 +20,21 @@ class OracleOfBacon
   validate :from_does_not_equal_to
 
    def from_does_not_equal_to
-#    if @from == @to
-#      self.errors.add(:from, 'cannot be the same as To')
-#    end
+    if @from == @to
+      self.errors.add(:from, 'cannot be the same as To')
+    end
   end
 
   def initialize(api_key='')
-    # your code here
+    @api_key = api_key
+    @to, @from = "Kevin Bacon", "Kevin Bacon"
   end
 
   def find_connections
     make_uri_from_arguments
     begin
       xml = URI.parse(uri).read
-    rescue OpenURI::HTTPError 
+    rescue OpenURI::HTTPError
       xml = %q{<?xml version="1.0" standalone="no"?>
 <error type="unauthorized">unauthorized use of xml interface</error>}
     rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
@@ -42,15 +43,19 @@ class OracleOfBacon
       # convert all of these into a generic OracleOfBacon::NetworkError,
       #  but keep the original error message
       # your code here
+      raise OracleOfBacon::NetworkError.new(e)
     end
     # your code here: create the OracleOfBacon::Response object
+    @response = OracleOfBacon::Response.new(xml)
   end
 
   def make_uri_from_arguments
     # your code here: set the @uri attribute to properly-escaped URI
     # constructed from the @from, @to, @api_key arguments
+    @uri = "http://oracleofbacon.org/cgi-bin/xml?p=" + CGI.escape("#{@api_key}") + "&a=" + CGI.escape("#{@to}") + "&b=" + CGI.escape("#{@from}")
+    puts @uri
   end
-      
+
   class Response
     attr_reader :type, :data
 
@@ -76,6 +81,9 @@ class OracleOfBacon
     def parse_error_response
      #Your code here.  Assign @type and @data
      # based on type attribute and body of the error element
+     @data = @doc.xpath('/error').text
+     @type = @doc.xpath('/error').attr('type').text.to_sym
+     p @type
     end
 
     def parse_spellcheck_response
@@ -86,6 +94,8 @@ class OracleOfBacon
 
     def parse_graph_response
       #Your code here
+      @type = :graph
+      @data = @doc.xpath('//actor').map(&:text).zip(@doc.xpath('//movie').map(&:text)).flatten.compact
     end
 
     def parse_unknown_response

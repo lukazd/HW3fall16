@@ -6,7 +6,7 @@ require 'spec_helper'
 
 describe OracleOfBacon do
   before(:all) { FakeWeb.allow_net_connect = false }
-  describe 'instance', :skip => true do
+  describe 'instance' do
     before(:each) { @orb = OracleOfBacon.new('fake_api_key') }
     describe 'when new' do
       subject { @orb }
@@ -37,7 +37,7 @@ describe OracleOfBacon do
       end
     end
   end
-  describe 'parsing XML response', :skip => true do
+  describe 'parsing XML response' do
     describe 'for a normal match' do
       subject { OracleOfBacon::Response.new(File.read 'spec/graph_example.xml') }
       its(:type) { should == :graph }
@@ -73,7 +73,7 @@ describe OracleOfBacon do
       its(:data) { should match /unauthorized/i }
     end
   end
-  describe 'constructing URI', :skip => true do
+  describe 'constructing URI'  do
     subject do
       oob = OracleOfBacon.new('fake_key')
       oob.to = '3%2 "a' ; oob.from = 'George Clooney'
@@ -85,7 +85,7 @@ describe OracleOfBacon do
     it { should match /b=George\+Clooney/ }
     it { should match /a=3%252\+%22a/ }
   end
-  describe 'service connection', :skip => true do
+  describe 'service connection' do
     before(:each) do
       @oob = OracleOfBacon.new
       allow(@oob).to receive(:valid?).and_return(true)
@@ -98,7 +98,7 @@ describe OracleOfBacon do
     end
     it 'should properly handle status 403 response (Unauthorized access)' do
       body = File.read 'spec/unauthorized_access.xml'
-      FakeWeb.register_uri(:get, %r(http://oracleofbacon\.org), 
+      FakeWeb.register_uri(:get, %r(http://oracleofbacon\.org),
         :exception =>OpenURI::HTTPError)
       expect(OracleOfBacon::Response).to receive(:new).with(body.chomp)
       @oob.find_connections
@@ -112,4 +112,4 @@ describe OracleOfBacon do
   end
 
 end
-      
+
